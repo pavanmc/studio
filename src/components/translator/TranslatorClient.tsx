@@ -7,10 +7,10 @@ import { Label } from "@/components/ui/label";
 import { LanguageSelect } from "./LanguageSelect";
 import { TextAreaWithActions } from "./TextAreaWithActions";
 import { languages } from "@/lib/languages";
-import { ArrowLeftRight, Loader2, Image as ImageIcon, Camera as CameraIcon, ScanLine } from "lucide-react";
+import { ArrowLeftRight, Loader2, Image as ImageIcon, Camera as CameraIcon, ScanLine, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { translateText, TranslateTextInput } from "@/ai/flows/translate-text";
-import { extractTextFromImage } from "@/ai/flows/extract-text-flow"; // New OCR flow
+import { extractTextFromFile } from "@/ai/flows/extract-text-from-file-flow"; // Updated import
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -200,36 +200,36 @@ export default function TranslatorClient() {
     }
   };
 
-  const processImageWithOCR = async (imageDataUri: string) => {
+  const processFileWithOCR = async (fileDataUri: string) => {
     setIsExtractingText(true);
     try {
-      const result = await extractTextFromImage({ imageDataUri });
+      const result = await extractTextFromFile({ fileDataUri }); // Updated function call
       if (result.extractedText) {
         setInputText(prev => (prev + result.extractedText).slice(0, MAX_INPUT_LENGTH));
-        toast({ title: "Text Extracted", description: "Text from image has been added to the input." });
+        toast({ title: "Text Extracted", description: "Text from file has been added to the input." });
       } else {
-        toast({ title: "No Text Found", description: "Could not find any text in the image.", variant: "default" });
+        toast({ title: "No Text Found", description: "Could not find any text in the file.", variant: "default" });
       }
     } catch (error) {
       console.error("OCR error:", error);
       toast({
         variant: "destructive",
         title: "Text Extraction Failed",
-        description: "Could not extract text from the image. Please try again.",
+        description: "Could not extract text from the file. Please try again.",
       });
     } finally {
       setIsExtractingText(false);
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => { // Renamed from handleImageUpload
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const imageDataUri = e.target?.result as string;
-        if (imageDataUri) {
-          processImageWithOCR(imageDataUri);
+        const fileDataUri = e.target?.result as string;
+        if (fileDataUri) {
+          processFileWithOCR(fileDataUri);
         }
       };
       reader.readAsDataURL(file);
@@ -264,15 +264,13 @@ export default function TranslatorClient() {
   };
 
   useEffect(() => {
-    // Start video stream when modal opens and permission is granted
     if (showCameraModal && hasCameraPermission && videoRef.current && !videoRef.current.srcObject) {
       navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
           if (videoRef.current) videoRef.current.srcObject = stream;
         })
-        .catch(() => setHasCameraPermission(false)); // Re-check permission if it fails
+        .catch(() => setHasCameraPermission(false)); 
     }
-    // Stop video stream when modal closes
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
@@ -293,7 +291,7 @@ export default function TranslatorClient() {
       if (context) {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageDataUri = canvas.toDataURL('image/jpeg');
-        processImageWithOCR(imageDataUri);
+        processFileWithOCR(imageDataUri); // Use generic processFileWithOCR
       }
       setShowCameraModal(false);
     } else {
@@ -309,7 +307,7 @@ export default function TranslatorClient() {
         <CardHeader className="text-center">
           <CardTitle className="text-3xl md:text-4xl font-bold">LinguaLens</CardTitle>
           <CardDescription className="text-sm mt-1">
-            Translate text or scan images. Voice support available.
+            Translate text, scan images or PDFs. Voice support available.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 md:p-8">
@@ -361,7 +359,7 @@ export default function TranslatorClient() {
               label="Enter text:"
               value={inputText}
               onChange={handleInputTextChange}
-              placeholder="Type, speak, or scan image..."
+              placeholder="Type, speak, or scan file..."
               onClear={handleClearInput}
               onListen={handleListenSource}
               isListening={isSpeakingSource}
@@ -391,10 +389,10 @@ export default function TranslatorClient() {
                <Tooltip>
                 <TooltipTrigger asChild>
                     <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isLoadingAny}>
-                        <ImageIcon className="mr-2 h-4 w-4" /> Upload Image
+                        <FileText className="mr-2 h-4 w-4" /> Upload File
                     </Button>
                 </TooltipTrigger>
-                <TooltipContent><p>Extract text from an image file</p></TooltipContent>
+                <TooltipContent><p>Extract text from an image or PDF file</p></TooltipContent>
               </Tooltip>
               <Tooltip>
                   <TooltipTrigger asChild>
@@ -402,14 +400,14 @@ export default function TranslatorClient() {
                         <CameraIcon className="mr-2 h-4 w-4" /> Use Camera
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent><p>Scan text using your camera</p></TooltipContent>
+                  <TooltipContent><p>Scan text using your camera (for images)</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <input
               type="file"
               ref={fileInputRef}
-              onChange={handleImageUpload}
-              accept="image/*"
+              onChange={handleFileUpload} // Updated handler
+              accept="image/*,application/pdf" // Added PDF to accept
               className="hidden"
             />
              {isExtractingText && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
@@ -420,7 +418,7 @@ export default function TranslatorClient() {
 
           <footer className="text-center">
             <p className="text-xs text-muted-foreground">
-              LinguaLens uses AI for translation & OCR. Voice features depend on browser support. Max input length {MAX_INPUT_LENGTH} characters.
+              LinguaLens uses AI for translation & OCR. Voice features depend on browser support. Max input length {MAX_INPUT_LENGTH} characters. PDFs up to 200 pages.
             </p>
           </footer>
         </CardContent>
@@ -428,7 +426,7 @@ export default function TranslatorClient() {
 
       <Dialog open={showCameraModal} onOpenChange={(isOpen) => {
           setShowCameraModal(isOpen);
-          if (!isOpen && videoRef.current && videoRef.current.srcObject) { // Stop stream if modal is closed
+          if (!isOpen && videoRef.current && videoRef.current.srcObject) { 
             const stream = videoRef.current.srcObject as MediaStream;
             stream.getTracks().forEach(track => track.stop());
             videoRef.current.srcObject = null;
