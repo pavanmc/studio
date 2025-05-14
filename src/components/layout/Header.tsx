@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 import { useState } from "react";
 import { InfoModal } from "@/components/common/InfoModal";
 import { MODAL_CONTENT, ModalType } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 const navLinks: { href?: string; label: string; modal?: ModalType }[] = [
   { label: "Home", href: "/" },
@@ -31,36 +32,48 @@ export default function Header() {
   };
 
   const renderNavLinks = (isMobile: boolean = false) =>
-    navLinks.map((item) =>
-      item.href ? (
-        <Link
-          key={item.label}
-          href={item.href}
-          className={`block py-2 px-3 rounded md:p-0 ${isMobile ? 'w-full ' : ''}${
-            isMobile ? "text-foreground hover:bg-muted" : "text-foreground hover:text-primary dark:hover:text-primary"
-          } transition-colors`}
-          onClick={() => {
-            if (isMobile) setIsMobileMenuOpen(false);
-          }}
-        >
-          {item.label}
-        </Link>
-      ) : (
-        <Button
-          key={item.label}
-          variant="ghost"
-          onClick={() => {
-            if (item.modal) openModal(item.modal);
-            if (isMobile) setIsMobileMenuOpen(false);
-          }}
-          className={`block py-2 px-3 rounded md:p-0 w-full justify-start ${
-             isMobile ? "text-foreground hover:bg-muted" : "text-foreground hover:text-primary dark:hover:text-primary"
-          } transition-colors`}
-        >
-          {item.label}
-        </Button>
-      )
-    );
+    navLinks.map((item) => {
+      const commonMobileItemClasses = "py-2 px-3 rounded w-full text-foreground hover:bg-muted transition-colors";
+      const commonDesktopItemClasses = "py-2 px-3 rounded text-foreground hover:text-primary dark:hover:text-primary transition-colors md:p-0";
+
+      if (item.href) {
+        // Link component (e.g., "Home")
+        const mobileLinkClasses = cn("flex items-center", commonMobileItemClasses);
+        const desktopLinkClasses = cn("block", commonDesktopItemClasses);
+        
+        return (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={isMobile ? mobileLinkClasses : desktopLinkClasses}
+            onClick={() => {
+              if (isMobile) setIsMobileMenuOpen(false);
+            }}
+          >
+            {item.label}
+          </Link>
+        );
+      } else {
+        // Button component (e.g., "About", "Features")
+        const mobileButtonClasses = cn("flex items-center justify-start", commonMobileItemClasses);
+        // For desktop, rely on variant="ghost" for padding/alignment, just set colors and md:p-0 for text-like appearance
+        const desktopButtonClasses = cn("md:p-0 text-foreground hover:text-primary dark:hover:text-primary transition-colors");
+
+        return (
+          <Button
+            key={item.label}
+            variant="ghost"
+            onClick={() => {
+              if (item.modal) openModal(item.modal);
+              if (isMobile) setIsMobileMenuOpen(false);
+            }}
+            className={isMobile ? mobileButtonClasses : desktopButtonClasses}
+          >
+            {item.label}
+          </Button>
+        );
+      }
+    });
 
   return (
     <>
