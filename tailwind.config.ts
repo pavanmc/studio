@@ -67,7 +67,7 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
       fontFamily: {
-        sans: ['var(--font-geist-sans)', 'sans-serif'],
+        sans: ['var(--font-inter)', 'sans-serif'],
       },
   		keyframes: {
   			'accordion-down': {

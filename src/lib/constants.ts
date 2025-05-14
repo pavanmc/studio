@@ -82,7 +82,7 @@ export const MODAL_CONTENT = {
       </ul>
       <h3 class="text-lg font-semibold mt-4 mb-2">Fonts:</h3>
       <ul class="list-disc list-inside space-y-1">
-         <li><strong>Geist Font (Vercel):</strong> Licensed under the SIL Open Font License 1.1.</li>
+         <li><strong>Inter (Google Fonts):</strong> Licensed under the SIL Open Font License 1.1.</li>
       </ul>
       <p class="mt-4">The code specific to this LinguaLens application is provided for demonstration and educational purposes. If you intend to use or adapt this code for production, please ensure compliance with all applicable licenses of third-party components and consider any further licensing implications for your specific use case.</p>
     `,
