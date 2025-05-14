@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -84,7 +85,7 @@ export default function Header() {
             </div>
           </div>
           <nav className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
-            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-border rounded-lg bg-card md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-transparent dark:bg-card-dark md:dark:bg-transparent">
+            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-border rounded-lg bg-card md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:items-center md:border-0 md:bg-transparent dark:bg-card-dark md:dark:bg-transparent">
               {renderNavLinks()}
             </ul>
           </nav>
