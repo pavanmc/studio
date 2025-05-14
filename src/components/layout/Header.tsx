@@ -33,12 +33,14 @@ export default function Header() {
 
   const renderNavLinks = (isMobile: boolean = false) =>
     navLinks.map((item) => {
-      const commonMobileItemClasses = "py-2 px-3 rounded w-full text-foreground hover:bg-muted transition-colors";
-      const commonDesktopItemClasses = "py-2 px-3 rounded text-foreground hover:text-primary dark:hover:text-primary transition-colors md:p-0";
+      const commonMobileItemClasses = "py-2 px-3 rounded w-full text-foreground hover:bg-muted transition-colors flex items-center justify-start";
+      // For desktop, make items appear as text links. Home link is an <a>, others are <button> styled as links.
+      const commonDesktopItemClasses = "py-2 px-3 text-foreground hover:text-primary dark:hover:text-primary transition-colors md:p-0";
+
 
       if (item.href) {
         // Link component (e.g., "Home")
-        const mobileLinkClasses = cn("flex items-center", commonMobileItemClasses);
+        const mobileLinkClasses = cn(commonMobileItemClasses, "w-full"); // Ensure full width for mobile consistency
         const desktopLinkClasses = cn("block", commonDesktopItemClasses);
         
         return (
@@ -55,14 +57,14 @@ export default function Header() {
         );
       } else {
         // Button component (e.g., "About", "Features")
-        const mobileButtonClasses = cn("flex items-center justify-start", commonMobileItemClasses);
-        // For desktop, rely on variant="ghost" for padding/alignment, just set colors and md:p-0 for text-like appearance
-        const desktopButtonClasses = cn("md:p-0 text-foreground hover:text-primary dark:hover:text-primary transition-colors");
+        const mobileButtonClasses = cn(commonMobileItemClasses);
+        // For desktop, remove background hover from ghost variant, rely on text color change.
+        const desktopButtonClasses = cn(commonDesktopItemClasses, "hover:bg-transparent");
 
         return (
           <Button
             key={item.label}
-            variant="ghost"
+            variant="ghost" // Ghost variant provides minimal styling, we override hover for desktop
             onClick={() => {
               if (item.modal) openModal(item.modal);
               if (isMobile) setIsMobileMenuOpen(false);
@@ -95,7 +97,7 @@ export default function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[250px] sm:w-[300px] p-6">
-                  <nav className="flex flex-col space-y-4 mt-6">
+                  <nav className="flex flex-col space-y-2 mt-6"> {/* Reduced space-y for tighter packing if needed */}
                     {renderNavLinks(true)}
                   </nav>
                 </SheetContent>
