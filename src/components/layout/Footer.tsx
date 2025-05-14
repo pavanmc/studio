@@ -33,7 +33,7 @@ export default function Footer() {
   return (
     <>
       <footer className="border-t bg-background">
-        <div className="max-w-screen-xl mx-auto p-4 md:py-8">
+        <div className="max-w-screen-md mx-auto p-4 md:py-8"> {/* Changed max-w-screen-xl to max-w-screen-md */}
           <div className="flex flex-col items-center sm:flex-row sm:justify-center mb-4 sm:mb-0">
             <ul className="flex flex-wrap items-center justify-center text-sm font-medium text-muted-foreground">
               {footerLinks.map((link) => (
