@@ -10,7 +10,7 @@ import { languages } from "@/lib/languages";
 import { ArrowLeftRight, Loader2, Image as ImageIcon, Camera as CameraIcon, ScanLine, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { translateText, TranslateTextInput } from "@/ai/flows/translate-text";
-import { extractTextFromFile } from "@/ai/flows/extract-text-from-file-flow"; // Updated import
+import { extractTextFromFile } from "@/ai/flows/extract-text-from-file-flow";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -203,7 +203,7 @@ export default function TranslatorClient() {
   const processFileWithOCR = async (fileDataUri: string) => {
     setIsExtractingText(true);
     try {
-      const result = await extractTextFromFile({ fileDataUri }); // Updated function call
+      const result = await extractTextFromFile({ fileDataUri });
       if (result.extractedText) {
         setInputText(prev => (prev + result.extractedText).slice(0, MAX_INPUT_LENGTH));
         toast({ title: "Text Extracted", description: "Text from file has been added to the input." });
@@ -222,7 +222,23 @@ export default function TranslatorClient() {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => { // Renamed from handleImageUpload
+  const handleImageUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = "image/*";
+      fileInputRef.current.value = ""; // Reset previous selection
+      fileInputRef.current.click();
+    }
+  };
+
+  const handlePdfUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = "application/pdf";
+      fileInputRef.current.value = ""; // Reset previous selection
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -234,7 +250,8 @@ export default function TranslatorClient() {
       };
       reader.readAsDataURL(file);
     }
-    if(fileInputRef.current) fileInputRef.current.value = ""; // Reset file input
+     // It's good practice to clear the input value after selection
+     // to allow uploading the same file again if needed, but this is handled in individual click handlers.
   };
 
   const requestCameraPermission = async () => {
@@ -258,7 +275,7 @@ export default function TranslatorClient() {
         title: 'Camera Access Denied',
         description: 'Please enable camera permissions in your browser settings.',
       });
-      setShowCameraModal(true); // Show modal to display error
+      setShowCameraModal(true); 
       return false;
     }
   };
@@ -291,7 +308,7 @@ export default function TranslatorClient() {
       if (context) {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageDataUri = canvas.toDataURL('image/jpeg');
-        processFileWithOCR(imageDataUri); // Use generic processFileWithOCR
+        processFileWithOCR(imageDataUri); 
       }
       setShowCameraModal(false);
     } else {
@@ -384,35 +401,45 @@ export default function TranslatorClient() {
             />
           </div>
           
-          <div className="flex items-center justify-start space-x-2 mb-6 md:col-start-1">
+          <div className="flex flex-wrap items-center justify-start gap-2 mb-6 md:col-start-1">
             <TooltipProvider delayDuration={300}>
-               <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isLoadingAny}>
-                        <FileText className="mr-2 h-4 w-4" /> Upload File
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent><p>Extract text from an image or PDF file</p></TooltipContent>
-              </Tooltip>
               <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={requestCameraPermission} disabled={isLoadingAny}>
-                        <CameraIcon className="mr-2 h-4 w-4" /> Use Camera
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Scan text using your camera (for images)</p></TooltipContent>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={handleImageUploadClick} disabled={isLoadingAny}>
+                    <ImageIcon className="mr-2 h-4 w-4" /> From Gallery
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>Upload an image from your gallery</p></TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={handlePdfUploadClick} disabled={isLoadingAny}>
+                    <FileText className="mr-2 h-4 w-4" /> Upload PDF
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>Upload a PDF document</p></TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={requestCameraPermission} disabled={isLoadingAny}>
+                    <CameraIcon className="mr-2 h-4 w-4" /> Use Camera
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>Scan text using your camera</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload} // Updated handler
-              accept="image/*,application/pdf" // Added PDF to accept
-              className="hidden"
-            />
-             {isExtractingText && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
+            {isExtractingText && <Loader2 className="h-5 w-5 animate-spin text-primary ml-2" />}
           </div>
-
+          
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            className="hidden"
+            // accept attribute is set dynamically by click handlers
+          />
 
           <Separator className="my-6" />
 
