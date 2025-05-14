@@ -1,7 +1,7 @@
+
 "use client";
 
 import Link from "next/link";
-import { Languages } from "lucide-react";
 import { useState, useEffect } from "react";
 import { InfoModal } from "@/components/common/InfoModal";
 import { MODAL_CONTENT, ModalType } from "@/lib/constants";
@@ -34,14 +34,8 @@ export default function Footer() {
     <>
       <footer className="border-t bg-background">
         <div className="max-w-screen-xl mx-auto p-4 md:py-8">
-          <div className="sm:flex sm:items-center sm:justify-between">
-            <Link href="/" className="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
-              <Languages className="h-7 w-7 text-primary" />
-              <span className="self-center text-xl font-semibold whitespace-nowrap text-foreground">
-                LinguaLens
-              </span>
-            </Link>
-            <ul className="flex flex-wrap items-center mb-6 text-sm font-medium text-muted-foreground sm:mb-0">
+          <div className="flex flex-col items-center sm:flex-row sm:justify-center mb-4 sm:mb-0">
+            <ul className="flex flex-wrap items-center justify-center text-sm font-medium text-muted-foreground">
               {footerLinks.map((link) => (
                 <li key={link.label}>
                   <Button
@@ -56,12 +50,8 @@ export default function Footer() {
             </ul>
           </div>
           <hr className="my-6 border-border sm:mx-auto lg:my-8" />
-          <span className="block text-sm text-muted-foreground sm:text-center">
-            © {currentYear}{" "}
-            <Link href="/" className="hover:underline text-foreground hover:text-primary">
-              LinguaLens™
-            </Link>
-            . All Rights Reserved.
+          <span className="block text-sm text-muted-foreground text-center">
+            © {currentYear}. All Rights Reserved.
           </span>
         </div>
       </footer>
