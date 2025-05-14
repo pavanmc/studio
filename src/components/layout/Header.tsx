@@ -36,10 +36,12 @@ export default function Header() {
         <Link
           key={item.label}
           href={item.href}
-          className={`block py-2 px-3 rounded md:p-0 ${
+          className={`block py-2 px-3 rounded md:p-0 ${isMobile ? 'w-full ' : ''}${
             isMobile ? "text-foreground hover:bg-muted" : "text-foreground hover:text-primary dark:hover:text-primary"
           } transition-colors`}
-          onClick={() => isMobile && setIsMobileMenuOpen(false)}
+          onClick={() => {
+            if (isMobile) setIsMobileMenuOpen(false);
+          }}
         >
           {item.label}
         </Link>
@@ -47,7 +49,10 @@ export default function Header() {
         <Button
           key={item.label}
           variant="ghost"
-          onClick={() => item.modal && openModal(item.modal)}
+          onClick={() => {
+            if (item.modal) openModal(item.modal);
+            if (isMobile) setIsMobileMenuOpen(false);
+          }}
           className={`block py-2 px-3 rounded md:p-0 w-full justify-start ${
              isMobile ? "text-foreground hover:bg-muted" : "text-foreground hover:text-primary dark:hover:text-primary"
           } transition-colors`}
